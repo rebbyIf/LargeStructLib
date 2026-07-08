@@ -1,0 +1,13 @@
+{
+  "itemGroup.largestructlib": "Example Mod Tab",
+  "block.largestructlib.example_block": "Example Block",
+  "item.largestructlib.example_item": "Example Item",
+
+  "largestructlib.configuration.title": "LargeStructureLib Configs",
+  "largestructlib.configuration.section.largestructlib.common.toml": "LargeStructureLib Configs",
+  "largestructlib.configuration.section.largestructlib.common.toml.title": "LargeStructureLib Configs",
+  "largestructlib.configuration.items": "Item List",
+  "largestructlib.configuration.logDirtBlock": "Log Dirt Block",
+  "largestructlib.configuration.magicNumberIntroduction": "Magic Number Text",
+  "largestructlib.configuration.magicNumber": "Magic Number"
+}
