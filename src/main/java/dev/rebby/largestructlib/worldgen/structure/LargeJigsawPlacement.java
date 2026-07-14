@@ -53,7 +53,7 @@ public class LargeJigsawPlacement {
         LevelHeightAccessor levelheightaccessor = context.heightAccessor();
         WorldgenRandom worldgenrandom = context.random();
         Registry<StructureTemplatePool> registry = registryaccess.registryOrThrow(Registries.TEMPLATE_POOL);
-        Rotation rotation = Rotation.getRandom(worldgenrandom);
+        Rotation rotation = Rotation.NONE;
         StructureTemplatePool structuretemplatepool = startPool.unwrapKey().flatMap((p_314915_) -> registry.getOptional(aliasLookup.lookup(p_314915_))).orElse((StructureTemplatePool)startPool.value());
         StructurePoolElement structurepoolelement = structuretemplatepool.getRandomTemplate(worldgenrandom);
         if (structurepoolelement == EmptyPoolElement.INSTANCE) {

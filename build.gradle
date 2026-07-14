@@ -3,6 +3,7 @@ plugins {
     id 'maven-publish'
     id 'net.neoforged.moddev' version '2.0.141'
     id 'idea'
+    id "top.wmsnp.librarian" version "0.1.0"
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -24,22 +25,25 @@ sourceSets.main.resources {
     // Exclude common development only resources from finalized outputs
     exclude("**/*.bbmodel") // BlockBench project files
     exclude("src/generated/**/.cache") // datagen cache files
+
+    // Exclude testing files
+    exclude('src/main/resources/data/testing')
 }
 
 repositories {
     // Add here additional repositories if required by some of the dependencies below.
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = "Modrinth"
-                url = "https://api.modrinth.com/maven"
-            }
-        }
-        // forRepositories(fg.repository) // Uncomment when using ForgeGradle
-        filter {
-            includeGroup "maven.modrinth"
-        }
-    }
+//    exclusiveContent {
+//        forRepository {
+//            maven {
+//                name = "Modrinth"
+//                url = "https://api.modrinth.com/maven"
+//            }
+//        }
+//        // forRepositories(fg.repository) // Uncomment when using ForgeGradle
+//        filter {
+//            includeGroup "maven.modrinth"
+//        }
+//    }
 }
 
 base {
@@ -51,12 +55,14 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 neoForge {
     // Specify the version of NeoForge to use.
-    version = project.neo_version
+    version = librarian.loaderVersion
 
     parchment {
         mappingsVersion = project.parchment_mappings_version
         minecraftVersion = project.parchment_minecraft_version
     }
+
+
 
     // This line is optional. Access Transformers are automatically detected
     // accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
@@ -64,6 +70,8 @@ neoForge {
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
     runs {
+
+
         client {
             client()
 
@@ -129,14 +137,22 @@ configurations {
     runtimeClasspath.extendsFrom localRuntime
 }
 
+
+
 dependencies {
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
     // compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
     // We add the full version to localRuntime, not runtimeOnly, so that we do not publish a dependency on it
-    implementation "maven.modrinth:M1953qlQ:lSbyRD6v"
-    implementation "maven.modrinth:ayPU0OHc:eTz03Gfd"
+    //implementation "maven.modrinth:M1953qlQ:lSbyRD6v"
+    //implementation "maven.modrinth:ayPU0OHc:eTz03Gfd"
+
+    librarian {
+        mod("M1953qlQ", "implementation")
+        mod("ayPU0OHc", "implementation")
+    }
+
 
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
@@ -160,8 +176,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
     var replaceProperties = [
             minecraft_version      : minecraft_version,
             minecraft_version_range: minecraft_version_range,
-            neo_version            : neo_version,
-            neo_version_range      : neo_version_range,
+            neo_version            : librarian.loaderVersion,
             loader_version_range   : loader_version_range,
             mod_id                 : mod_id,
             mod_name               : mod_name,

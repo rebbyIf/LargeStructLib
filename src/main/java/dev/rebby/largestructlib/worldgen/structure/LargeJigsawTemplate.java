@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
@@ -50,21 +51,28 @@ public class LargeJigsawTemplate {
             int maxDistanceFromCenter,
             PoolAliasLookup aliasLookup,
             DimensionPadding dimensionPadding,
-            LiquidSettings liquidSettings){
+            LiquidSettings liquidSettings,
+            int rarityFilter,
+            int salt){
 
         if (isntSetUp) {
-            pieces.addAll(setUp(
-                    context,
-                    startPool,
-                    startJigsawName,
-                    maxDepth,
-                    pos,
-                    useExpansionHack,
-                    projectStartToHeightmap,
-                    maxDistanceFromCenter,
-                    aliasLookup,
-                    dimensionPadding,
-                    liquidSettings));
+            LegacyRandomSource r = new LegacyRandomSource(context.seed());
+            LegacyRandomSource r1 = new LegacyRandomSource(center.asLong());
+            LegacyRandomSource r2 = new LegacyRandomSource(salt);
+            LegacyRandomSource r3 = new LegacyRandomSource(r.nextLong() + r1.nextLong() + r2.nextLong());
+            if (rarityFilter == 0 || r3.nextInt(rarityFilter) == 0)
+                pieces.addAll(setUp(
+                        context,
+                        startPool,
+                        startJigsawName,
+                        maxDepth,
+                        pos,
+                        useExpansionHack,
+                        projectStartToHeightmap,
+                        maxDistanceFromCenter,
+                        aliasLookup,
+                        dimensionPadding,
+                        liquidSettings));
 
 
             isntSetUp = false;
@@ -101,6 +109,8 @@ public class LargeJigsawTemplate {
             PoolAliasLookup aliasLookup,
             DimensionPadding dimensionPadding,
             LiquidSettings liquidSettings){
+
+
 
         Optional<Structure.GenerationStub> stub = LargeJigsawPlacement.addPieces(context,
                 startPool,
