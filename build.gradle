@@ -103,6 +103,8 @@ neoForge {
             programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
         }
 
+
+
         // applies to all the run configs above
         configureEach {
             // Recommended logging data for a userdev environment
@@ -212,10 +214,18 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
 
+
+
 // IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.
 idea {
     module {
         downloadSources = true
         downloadJavadoc = true
+    }
+}
+
+jar{
+    processResources{
+        exclude("data/testing")
     }
 }
