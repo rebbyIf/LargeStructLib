@@ -1,5 +1,7 @@
 package dev.rebby.largestructlib;
 
+import dev.rebby.largestructlib.worldgen.structure.ModStructureTypes;
+import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -45,10 +47,15 @@ public class LargeStructureLib {
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
 
+        ModStructureTypes.TYPES.register(modEventBus);
+        ModStructureTypes.Placement.TYPES.register(modEventBus);
+
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (LargeStructureLib) to respond directly to events.
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
         NeoForge.EVENT_BUS.register(this);
+
+
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         //modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
@@ -64,5 +71,9 @@ public class LargeStructureLib {
     public void onServerStarting(ServerStartingEvent event) {
         // Do something when the server starts
         LOGGER.info("HELLO from server starting");
+    }
+
+    public static ResourceLocation ofPath(String path) {
+        return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
 }

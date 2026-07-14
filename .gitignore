@@ -38,3 +38,5 @@ run/
 **/src/generated/**/.cache/
 repo/
 !**/src/**/repo/
+/src/main/resources/data/testing
+/src/main/resources/data/minecraft
