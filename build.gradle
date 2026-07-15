@@ -224,8 +224,4 @@ idea {
     }
 }
 
-jar{
-    processResources{
-        exclude("data/testing")
-    }
-}
+jar.exclude "data/testing"

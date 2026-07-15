@@ -89,7 +89,12 @@ public class LargeJigsawPlacement {
                 List<PoolElementStructurePiece> list = Lists.newArrayList();
                 list.add(poolelementstructurepiece);
                 if (maxDepth > 0) {
-                    AABB aabb = new AABB((double)(i - maxDistanceFromCenter), (double)Math.max(i1 - maxDistanceFromCenter, levelheightaccessor.getMinBuildHeight() + dimensionPadding.bottom()), (double)(j - maxDistanceFromCenter), (double)(i + maxDistanceFromCenter + 1), (double)Math.min(i1 + maxDistanceFromCenter + 1, levelheightaccessor.getMaxBuildHeight() - dimensionPadding.top()), (double)(j + maxDistanceFromCenter + 1));
+                    AABB aabb = new AABB(i - maxDistanceFromCenter,
+                            Math.max(i1 - maxDistanceFromCenter, levelheightaccessor.getMinBuildHeight() + dimensionPadding.bottom()),
+                            j - maxDistanceFromCenter,
+                            i + maxDistanceFromCenter + 1,
+                            Math.min(i1 + maxDistanceFromCenter + 1, levelheightaccessor.getMaxBuildHeight() - dimensionPadding.top()),
+                            j + maxDistanceFromCenter + 1);
                     TrojanVoxelShape voxelShape = new TrojanVoxelShape(new BoxOctree(aabb));
                     voxelShape.boxOctree.addBox(AABB.of(boundingbox));
                     addPieces(context.randomState(), maxDepth, useExpansionHack, chunkgenerator, structuretemplatemanager, levelheightaccessor, worldgenrandom, registry, poolelementstructurepiece, list, voxelShape, aliasLookup, liquidSettings);

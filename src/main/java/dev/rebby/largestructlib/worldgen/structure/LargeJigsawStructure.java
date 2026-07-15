@@ -47,9 +47,9 @@ import java.util.function.Predicate;
 public class LargeJigsawStructure extends Structure {
     public static final DimensionPadding DEFAULT_DIMENSION_PADDING;
     public static final LiquidSettings DEFAULT_LIQUID_SETTINGS;
-    public static final int MAX_TOTAL_STRUCTURE_RANGE = 1024;
+    public static final int MAX_TOTAL_STRUCTURE_RANGE = 4096;
     public static final int MIN_DEPTH = 0;
-    public static final int MAX_DEPTH = 256;
+    public static final int MAX_DEPTH = 512;
     public static final MapCodec<LargeJigsawStructure> CODEC;
 
     private final Map<ChunkPos, LargeJigsawTemplate> templateMap;
@@ -62,7 +62,7 @@ public class LargeJigsawStructure extends Structure {
     private final Optional<Heightmap.Types> projectStartToHeightmap;
     private final int maxDistanceFromCenter;
     private final int padding;
-    private final int rarityFilter;
+    private final float frequency;
     private final int salt;
     private final List<PoolAliasBinding> poolAliases;
     private final DimensionPadding dimensionPadding;
@@ -77,7 +77,7 @@ public class LargeJigsawStructure extends Structure {
                                 Optional<Heightmap.Types> projectStartToHeightmap,
                                 int maxDistanceFromCenter,
                                 int padding,
-                                int rarityFilter,
+                                float frequency,
                                 int salt,
                                 List<PoolAliasBinding> poolAliases,
                                 DimensionPadding dimensionPadding,
@@ -90,7 +90,7 @@ public class LargeJigsawStructure extends Structure {
         this.useExpansionHack = useExpansionHack;
         this.projectStartToHeightmap = projectStartToHeightmap;
         this.padding = padding;
-        this.rarityFilter = rarityFilter;
+        this.frequency = frequency;
         this.salt = salt;
         this.maxDistanceFromCenter = maxDistanceFromCenter;
         this.poolAliases = poolAliases;
@@ -108,7 +108,7 @@ public class LargeJigsawStructure extends Structure {
         ChunkPos chunkpos = context.chunkPos();
         int i = this.startHeight.sample(context.random(), new WorldGenerationContext(context.chunkGenerator(), context.heightAccessor()));
         BlockPos blockpos = new BlockPos(chunkpos.getMinBlockX(), i, chunkpos.getMinBlockZ());
-        int j = ((maxDistanceFromCenter >> 4) + padding) * 2;
+        int j = (maxDistanceFromCenter >> 4) + padding;
         ChunkPos key = new ChunkPos((chunkpos.x / j) * j, (chunkpos.z / j) * j);
         if (!templateMap.containsKey(key)) {
             LargeStructureLib.LOGGER.info("Generating large structure at: {}, {}", key.x,key.z);
@@ -126,7 +126,7 @@ public class LargeJigsawStructure extends Structure {
                 PoolAliasLookup.create(this.poolAliases, blockpos, context.seed()),
                 this.dimensionPadding,
                 this.liquidSettings,
-                this.rarityFilter,
+                this.frequency,
                 this.salt);
     }
 
@@ -148,7 +148,7 @@ public class LargeJigsawStructure extends Structure {
                         Heightmap.Types.CODEC.optionalFieldOf("project_start_to_heightmap").forGetter((p_227644_) -> p_227644_.projectStartToHeightmap),
                         Codec.intRange(1, MAX_TOTAL_STRUCTURE_RANGE).fieldOf("max_distance_from_center").forGetter((p_227642_) -> p_227642_.maxDistanceFromCenter),
                         Codec.intRange(1, 4096).fieldOf("padding").forGetter((instance) -> instance.padding),
-                        Codec.intRange(0, 4096).fieldOf("rarity_filter").forGetter((instance) -> instance.rarityFilter),
+                        Codec.floatRange(0.0F, 1.0F).optionalFieldOf("frequency", 1.0F).forGetter((instance) -> instance.frequency),
                         ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("salt", 0).forGetter((instance) -> instance.salt),
                         Codec.list(PoolAliasBinding.CODEC).optionalFieldOf("pool_aliases", List.of()).forGetter((p_307187_) -> p_307187_.poolAliases),
                         DimensionPadding.CODEC.optionalFieldOf("dimension_padding", DEFAULT_DIMENSION_PADDING).forGetter((p_348455_) -> p_348455_.dimensionPadding),

@@ -52,7 +52,7 @@ public class LargeJigsawTemplate {
             PoolAliasLookup aliasLookup,
             DimensionPadding dimensionPadding,
             LiquidSettings liquidSettings,
-            int rarityFilter,
+            float frequency,
             int salt){
 
         if (isntSetUp) {
@@ -60,7 +60,7 @@ public class LargeJigsawTemplate {
             LegacyRandomSource r1 = new LegacyRandomSource(center.asLong());
             LegacyRandomSource r2 = new LegacyRandomSource(salt);
             LegacyRandomSource r3 = new LegacyRandomSource(r.nextLong() + r1.nextLong() + r2.nextLong());
-            if (rarityFilter == 0 || r3.nextInt(rarityFilter) == 0)
+            if (r3.nextFloat() <= frequency)
                 pieces.addAll(setUp(
                         context,
                         startPool,
