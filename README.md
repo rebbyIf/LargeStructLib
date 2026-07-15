@@ -39,6 +39,7 @@ Example definition:
   // Chance of a structure spawning within the padding
   // + distance from center grid.
   // Range from 0.0 to 1.0.
+  // Optional
   "frequency": 1.0
 }
 ```
