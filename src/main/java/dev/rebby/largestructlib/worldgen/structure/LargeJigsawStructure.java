@@ -108,8 +108,10 @@ public class LargeJigsawStructure extends Structure {
         ChunkPos chunkpos = context.chunkPos();
         int i = this.startHeight.sample(context.random(), new WorldGenerationContext(context.chunkGenerator(), context.heightAccessor()));
         BlockPos blockpos = new BlockPos(chunkpos.getMinBlockX(), i, chunkpos.getMinBlockZ());
-        int j = (maxDistanceFromCenter >> 4) + padding;
-        ChunkPos key = new ChunkPos((chunkpos.x / j) * j, (chunkpos.z / j) * j);
+        int j = ((maxDistanceFromCenter >> 4) + padding) * 2;
+        int x = chunkpos.x >= 0 ? chunkpos.x + j/2 : chunkpos.x - j/2;
+        int z = chunkpos.z >= 0 ? chunkpos.z + j/2 : chunkpos.z - j/2;
+        ChunkPos key = new ChunkPos((x / j) * j, (z / j) * j);
         if (!templateMap.containsKey(key)) {
             LargeStructureLib.LOGGER.info("Generating large structure at: {}, {}", key.x,key.z);
             templateMap.put(key, new LargeJigsawTemplate(key.getWorldPosition().atY(i)));
