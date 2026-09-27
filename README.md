@@ -32,7 +32,7 @@ Example definition:
   // Unique to Large Jigsaw Structures. Specifies the
   // padding between structures of the same type. Distance
   // between each structure is:
-  // max_distance_from_center / 2 + paddding
+  // max_distance_from_center + paddding
   //
   // Range from 1-4096
   "padding": 4
