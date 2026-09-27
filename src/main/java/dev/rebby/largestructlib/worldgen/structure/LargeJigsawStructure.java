@@ -68,6 +68,8 @@ public class LargeJigsawStructure extends Structure {
     private final DimensionPadding dimensionPadding;
     private final LiquidSettings liquidSettings;
 
+    private ChunkPos at = null;
+
     public LargeJigsawStructure(StructureSettings settings,
                                 Holder<StructureTemplatePool> startPool,
                                 Optional<ResourceLocation> startJigsawName,
@@ -112,9 +114,21 @@ public class LargeJigsawStructure extends Structure {
         int x = chunkpos.x >= 0 ? chunkpos.x + j/2 : chunkpos.x - j/2;
         int z = chunkpos.z >= 0 ? chunkpos.z + j/2 : chunkpos.z - j/2;
         ChunkPos key = new ChunkPos((x / j) * j, (z / j) * j);
-        if (!templateMap.containsKey(key)) {
-            LargeStructureLib.LOGGER.info("Generating large structure at: {}, {}", key.x,key.z);
+        if (templateMap.get(key) == null) {
+            LargeStructureLib.LOGGER.info("Generating large jigsaw structure at: {}, {}", key.x,key.z);
             templateMap.put(key, new LargeJigsawTemplate(key.getWorldPosition().atY(i)));
+        }
+        if (!key.equals(at)){
+            for (int kx = -2; kx <= 2; kx++){
+                for (int kz = -2; kz <= 2; kz++){
+                    if (Math.abs(kx) != 2 && Math.abs(kz) != 2){
+                        continue;
+                    }
+                    templateMap.put(new ChunkPos(key.x + kx*j, key.z + kz*j), null);
+                }
+            }
+
+            at = key;
         }
         return templateMap.get(key).generate(
                 context,

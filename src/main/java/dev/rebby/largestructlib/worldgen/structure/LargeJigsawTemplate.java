@@ -3,10 +3,12 @@ package dev.rebby.largestructlib.worldgen.structure;
 import dev.rebby.largestructlib.LargeStructureLib;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
@@ -23,12 +25,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.zip.DataFormatException;
 
 public class LargeJigsawTemplate {
 
     private final List<StructurePiece> pieces;
     private final BlockPos center;
     private boolean isntSetUp;
+
+
 
     public LargeJigsawTemplate(BlockPos center) {
         this.center = center;
@@ -79,9 +84,9 @@ public class LargeJigsawTemplate {
         }
 
         List<StructurePiece> pieces2 = Lists.newArrayList();
-        BoundingBox chunkBoarder = BoundingBox.fromCorners(pos.atY(0), pos.offset(15,0,15).atY(0));
+        BoundingBox chunkBorder = BoundingBox.fromCorners(pos.atY(0), pos.offset(15,0,15).atY(0));
         for (StructurePiece piece : pieces) {
-            if (chunkBoarder.isInside(piece.getBoundingBox().minX(),
+            if (chunkBorder.isInside(piece.getBoundingBox().minX(),
                     0,
                     piece.getBoundingBox().minZ())) {
                 pieces2.add(piece);
@@ -93,7 +98,10 @@ public class LargeJigsawTemplate {
         }
 
         return Optional.of(new Structure.GenerationStub(pieces2.getFirst().getLocatorPosition(), (builder) -> {
-            pieces2.forEach(builder::addPiece);
+            pieces2.forEach(structurePiece -> {
+                builder.addPiece(structurePiece);
+                pieces.remove(structurePiece);
+            });
         }));
     }
 
@@ -125,11 +133,14 @@ public class LargeJigsawTemplate {
                 liquidSettings);
         if (stub.isPresent()) {
             StructurePiecesBuilder builder = new StructurePiecesBuilder();
-            stub.get().generator().ifLeft(consumer -> consumer.accept(builder));
+            stub.get().generator().ifLeft(consumer ->
+                    consumer.accept(builder));
             return builder.build().pieces();
         }
 
         return Lists.newArrayList();
 
     }
+
+
 }
