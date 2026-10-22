@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -22,27 +23,26 @@ import org.apache.commons.compress.utils.Lists;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.DataFormatException;
 
 public class LargeJigsawTemplate {
 
     private final List<StructurePiece> pieces;
     private final BlockPos center;
-    private boolean isntSetUp;
+    private AtomicBoolean isntSetUp;
 
 
 
     public LargeJigsawTemplate(BlockPos center) {
         this.center = center;
-        this.isntSetUp = true;
-        pieces = new ArrayList<>();
-    }
-
-    public boolean isntSetUp() {
-        return isntSetUp;
+        this.isntSetUp = new AtomicBoolean(true);
+        pieces = new CopyOnWriteArrayList<>();
     }
 
     public @NotNull Optional<Structure.GenerationStub> generate(
@@ -60,7 +60,7 @@ public class LargeJigsawTemplate {
             float frequency,
             int salt){
 
-        if (isntSetUp) {
+        if (isntSetUp.get()) {
             LegacyRandomSource r = new LegacyRandomSource(context.seed());
             LegacyRandomSource r1 = new LegacyRandomSource(center.asLong());
             LegacyRandomSource r2 = new LegacyRandomSource(salt);
@@ -77,10 +77,11 @@ public class LargeJigsawTemplate {
                         maxDistanceFromCenter,
                         aliasLookup,
                         dimensionPadding,
-                        liquidSettings));
+                        liquidSettings,
+                        new LegacyRandomSource(r.nextLong() + r1.nextLong() + r2.nextLong())));
 
 
-            isntSetUp = false;
+            isntSetUp.set(false);
         }
 
         List<StructurePiece> pieces2 = Lists.newArrayList();
@@ -100,7 +101,7 @@ public class LargeJigsawTemplate {
         return Optional.of(new Structure.GenerationStub(pieces2.getFirst().getLocatorPosition(), (builder) -> {
             pieces2.forEach(structurePiece -> {
                 builder.addPiece(structurePiece);
-                pieces.remove(structurePiece);
+                //pieces.remove(structurePiece);
             });
         }));
     }
@@ -116,7 +117,8 @@ public class LargeJigsawTemplate {
             int maxDistanceFromCenter,
             PoolAliasLookup aliasLookup,
             DimensionPadding dimensionPadding,
-            LiquidSettings liquidSettings){
+            LiquidSettings liquidSettings,
+            RandomSource random){
 
 
 
@@ -130,7 +132,8 @@ public class LargeJigsawTemplate {
                 maxDistanceFromCenter,
                 aliasLookup,
                 dimensionPadding,
-                liquidSettings);
+                liquidSettings,
+                random);
         if (stub.isPresent()) {
             StructurePiecesBuilder builder = new StructurePiecesBuilder();
             stub.get().generator().ifLeft(consumer ->
@@ -140,6 +143,17 @@ public class LargeJigsawTemplate {
 
         return Lists.newArrayList();
 
+    }
+
+    public static class Empty extends LargeJigsawTemplate {
+        public Empty(BlockPos center) {
+            super(center);
+        }
+
+        @Override
+        public @NotNull Optional<Structure.GenerationStub> generate(Structure.GenerationContext context, Holder<StructureTemplatePool> startPool, Optional<ResourceLocation> startJigsawName, int maxDepth, BlockPos pos, boolean useExpansionHack, Optional<Heightmap.Types> projectStartToHeightmap, int maxDistanceFromCenter, PoolAliasLookup aliasLookup, DimensionPadding dimensionPadding, LiquidSettings liquidSettings, float frequency, int salt) {
+            return Optional.empty();
+        }
     }
 
 

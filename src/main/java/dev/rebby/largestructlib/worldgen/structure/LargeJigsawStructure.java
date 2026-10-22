@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 /**
@@ -99,7 +100,7 @@ public class LargeJigsawStructure extends Structure {
         this.dimensionPadding = dimensionPadding;
         this.liquidSettings = liquidSettings;
 
-        this.templateMap = new HashMap<>();
+        this.templateMap = new ConcurrentHashMap<>();
     }
 
 
@@ -114,7 +115,7 @@ public class LargeJigsawStructure extends Structure {
         int x = chunkpos.x >= 0 ? chunkpos.x + j/2 : chunkpos.x - j/2;
         int z = chunkpos.z >= 0 ? chunkpos.z + j/2 : chunkpos.z - j/2;
         ChunkPos key = new ChunkPos((x / j) * j, (z / j) * j);
-        if (templateMap.get(key) == null) {
+        if (templateMap.get(key) == null || templateMap.get(key) instanceof LargeJigsawTemplate.Empty) {
             LargeStructureLib.LOGGER.info("Generating large jigsaw structure at: {}, {}", key.x,key.z);
             templateMap.put(key, new LargeJigsawTemplate(key.getWorldPosition().atY(i)));
         }
@@ -124,7 +125,8 @@ public class LargeJigsawStructure extends Structure {
                     if (Math.abs(kx) != 2 && Math.abs(kz) != 2){
                         continue;
                     }
-                    templateMap.put(new ChunkPos(key.x + kx*j, key.z + kz*j), null);
+                    ChunkPos key1 = new ChunkPos(key.x + kx*j, key.z + kz*j);
+                    templateMap.put(key1, new LargeJigsawTemplate.Empty(key.getWorldPosition().atY(i)));
                 }
             }
 

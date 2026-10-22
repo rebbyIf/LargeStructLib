@@ -46,12 +46,12 @@ import java.util.*;
  */
 public class LargeJigsawPlacement {
 
-    public static @NotNull Optional<Structure.GenerationStub> addPieces(Structure.GenerationContext context, Holder<StructureTemplatePool> startPool, Optional<ResourceLocation> startJigsawName, int maxDepth, BlockPos pos, boolean useExpansionHack, Optional<Heightmap.Types> projectStartToHeightmap, int maxDistanceFromCenter, PoolAliasLookup aliasLookup, DimensionPadding dimensionPadding, LiquidSettings liquidSettings) {
+    public static @NotNull Optional<Structure.GenerationStub> addPieces(Structure.GenerationContext context, Holder<StructureTemplatePool> startPool, Optional<ResourceLocation> startJigsawName, int maxDepth, BlockPos pos, boolean useExpansionHack, Optional<Heightmap.Types> projectStartToHeightmap, int maxDistanceFromCenter, PoolAliasLookup aliasLookup, DimensionPadding dimensionPadding, LiquidSettings liquidSettings, RandomSource random) {
         RegistryAccess registryaccess = context.registryAccess();
         ChunkGenerator chunkgenerator = context.chunkGenerator();
         StructureTemplateManager structuretemplatemanager = context.structureTemplateManager();
         LevelHeightAccessor levelheightaccessor = context.heightAccessor();
-        WorldgenRandom worldgenrandom = context.random();
+        WorldgenRandom worldgenrandom = new WorldgenRandom(random);
         Registry<StructureTemplatePool> registry = registryaccess.registryOrThrow(Registries.TEMPLATE_POOL);
         Rotation rotation = Rotation.NONE;
         StructureTemplatePool structuretemplatepool = startPool.unwrapKey().flatMap((p_314915_) -> registry.getOptional(aliasLookup.lookup(p_314915_))).orElse((StructureTemplatePool)startPool.value());
