@@ -2,7 +2,9 @@
   "required": true,
   "package": "dev.rebby.largestructlib.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [],
+  "mixins": [
+    "worldgen.RandomStateAccessor"
+  ],
   "injectors": {
     "defaultRequire": 1
   },

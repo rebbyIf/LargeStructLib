@@ -1,7 +1,6 @@
-package dev.rebby.largestructlib.worldgen.structure;
+package dev.rebby.largestructlib.worldgen.structure.generator;
 
 import com.google.common.collect.Lists;
-import com.llamalad7.mixinextras.sugar.Local;
 import dev.rebby.largestructlib.LargeStructureLib;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.Registries;

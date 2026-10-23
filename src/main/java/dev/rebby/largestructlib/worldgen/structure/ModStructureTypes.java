@@ -11,15 +11,19 @@ import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-public class ModStructureTypes {
+public interface ModStructureTypes {
 
-    public static final DeferredRegister<StructureType<?>> TYPES =
+    DeferredRegister<StructureType<?>> TYPES =
             DeferredRegister.create(BuiltInRegistries.STRUCTURE_TYPE, LargeStructureLib.MODID);
 
-    public static final DeferredHolder<StructureType<?>, StructureType<LargeJigsawStructure>> LARGE_JIGSAW_STRUCTURE =
+    DeferredHolder<StructureType<?>, StructureType<LargeJigsawStructure>> LARGE_JIGSAW_STRUCTURE =
             TYPES.register("large_jigsaw", () -> () -> LargeJigsawStructure.CODEC);
+    DeferredHolder<StructureType<?>, StructureType<DensityBasedStructure>> DENSITY_BASED_STRUCTURE =
+            TYPES.register("density_based", () -> () -> DensityBasedStructure.CODEC);
+    DeferredHolder<StructureType<?>, StructureType<MultiStructure>> MULTI_STRUCTURE =
+            TYPES.register("multi", () -> () -> MultiStructure.CODEC);
 
-    public interface Placement{
+    interface Placement{
         DeferredRegister<StructurePlacementType<?>> TYPES =
                 DeferredRegister.create(BuiltInRegistries.STRUCTURE_PLACEMENT, LargeStructureLib.MODID);
 

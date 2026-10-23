@@ -1,7 +1,12 @@
 package dev.rebby.largestructlib;
 
 import dev.rebby.largestructlib.worldgen.structure.ModStructureTypes;
+import dev.rebby.largestructlib.worldgen.structure.check_value.CheckValueType;
+import dev.rebby.largestructlib.worldgen.structure.check_value.CheckValueTypes;
+import dev.rebby.largestructlib.worldgen.structure.piece.StructurePieceType;
+import dev.rebby.largestructlib.worldgen.structure.piece.StructurePieceTypes;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.registries.*;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -28,10 +33,6 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredItem;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(LargeStructureLib.MODID)
@@ -49,6 +50,8 @@ public class LargeStructureLib {
 
         ModStructureTypes.TYPES.register(modEventBus);
         ModStructureTypes.Placement.TYPES.register(modEventBus);
+        StructurePieceTypes.TYPES.register(modEventBus);
+        CheckValueTypes.TYPES.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (LargeStructureLib) to respond directly to events.
@@ -60,6 +63,8 @@ public class LargeStructureLib {
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         //modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
+
+
 
     private void commonSetup(FMLCommonSetupEvent event) {
         // Some common setup code
