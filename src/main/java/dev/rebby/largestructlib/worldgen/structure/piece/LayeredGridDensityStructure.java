@@ -26,7 +26,7 @@ public record LayeredGridDensityStructure(String name, Holder<StructureTemplateP
                                           Holder<StructureTemplatePool> middlePool,
                                           Holder<StructureTemplatePool> topPool, BlockPos boundingSize,
                                           BlockPos size, BlockPos location, int minY, int maxY, int yOffset,
-                                          List<String> grid3D) implements DensityStructurePiece {
+                                          double rarity, List<String> grid3D) implements DensityStructurePiece {
 
     public static final MapCodec<LayeredGridDensityStructure> LAYERED_GRID_STRUCTURE_CODEC = RecordCodecBuilder.mapCodec(
             instance -> instance.group(
@@ -40,66 +40,29 @@ public record LayeredGridDensityStructure(String name, Holder<StructureTemplateP
                             Codec.INT.optionalFieldOf("min_y", 0).forGetter(LayeredGridDensityStructure::minY),
                             Codec.INT.fieldOf("max_y").forGetter(LayeredGridDensityStructure::maxY),
                             Codec.INT.optionalFieldOf("y_offset", 0).forGetter(LayeredGridDensityStructure::yOffset),
+                            Codec.doubleRange(0.0,1.0).optionalFieldOf("rarity", 1.0).forGetter(LayeredGridDensityStructure::rarity),
                             Codec.STRING.listOf().fieldOf("grid").forGetter(LayeredGridDensityStructure::grid3D))
                     .apply(instance, LayeredGridDensityStructure::new));
 
-
-
-
-
-    private boolean checkPlace(BlockPos pos, int scale, Map<String, CheckValue> values, DensityFunction densityFunction) {
-        BlockPos min = pos.subtract(location.multiply(scale));
-        BlockPos max = min.offset(boundingSize.multiply(scale));
-
-        int index = 0;
-        for (int j = 0; j < boundingSize.getY(); j++) {
-            for (int i = 0; i < boundingSize.getX(); i++) {
-                for (int k = 0; k < boundingSize.getZ(); k++) {
-                    CheckValue value = values.get(grid3D.get(index));
-                    if (value != null) {
-                        BlockPos gridLoc = location.multiply(-1).offset(i, j, k).multiply(scale);
-                        BlockPos loc = pos.offset(gridLoc);
-                        boolean result = value.check(densityFunction, loc, min, max, scale);
-                        if (!result && value.doesOverrideIfFalse()) {
-                            return false;
-                        }
-
-                        if (result && value.doesOverrideIfTrue()) {
-                            return true;
-                        }
-
-
-                    }
-
-                    index++;
-                }
-            }
-        }
-        return true;
-    }
 
     @Override
     public boolean place(List<PoolElementStructurePiece> pieces, int scale, BlockPos pos, DensityFunction densityFunction,
                          StructureTemplateManager structureTemplateManager, Structure.GenerationContext context,
                          Map<String, CheckValue> values, PoolAliasLookup aliasLookup,
-                         LiquidSettings liquidSettings) {
+                         LiquidSettings liquidSettings, int top, int bottom) {
 
         BlockPos boundingScale = size.multiply(scale);
 
         if (boundingSize.getX() * boundingSize.getY() * boundingSize.getZ() > grid3D.size() ||
-                maxY % boundingScale.getY() != 0 || minY % boundingScale.getY() != 0 ||
-                maxY - boundingScale.getY() * 3 - yOffset * scale <= minY + yOffset * scale ||
+                maxY < minY ||
                 yOffset >= size.getY()) {
             throw new IndexOutOfBoundsException("Scaling out of bounds for structure " + getName());
         }
 
-        if (pos.getY() > maxY - boundingScale.getY() - yOffset*scale || pos.getY() < minY + yOffset*scale) {
-            return false;
-        }
-
-        BlockPos distanceFromOrigin = new BlockPos(Math.abs(pos.getX()) % boundingScale.getX(),
-                Math.abs(pos.getY() + yOffset*scale) % boundingScale.getY(),
-                Math.abs(pos.getZ()) % boundingScale.getZ());
+        BlockPos distanceFromOrigin = new BlockPos(
+                ((pos.getX() % boundingScale.getX()) + boundingScale.getX()) % boundingScale.getX(),
+                (((pos.getY() - yOffset*scale) % boundingScale.getY()) + boundingScale.getY()) % boundingScale.getY(),
+                ((pos.getZ() % boundingScale.getZ()) + boundingScale.getZ()) % boundingScale.getZ());
 
 
 
@@ -109,19 +72,19 @@ public record LayeredGridDensityStructure(String name, Holder<StructureTemplateP
                 0,
                 Math.abs(origin.getZ()) % (boundingScale.getZ() * 2));
 
-        if (!gridDistance.equals(BlockPos.ZERO) && !gridDistance.equals(boundingScale.offset(0, -boundingScale.getY(), 0))) {
+        if (!gridDistance.equals(boundingScale.offset(0, -boundingScale.getY(), 0))) {
             return false;
         }
 
         boolean hasBase = false;
-        BlockPos.MutableBlockPos basePos = new BlockPos.MutableBlockPos(origin.getX(),
-                maxY - boundingScale.getY() * 3 - yOffset*scale, origin.getZ());
+        BlockPos basePos = new BlockPos(origin.getX(),
+                0, origin.getZ());
 
-        for (int y = maxY - boundingScale.getY() * 3 - yOffset*scale; y >= minY + yOffset*scale; y -= boundingScale.getY()) {
-            basePos.setY(y);
-            if (checkPlace(basePos.immutable(), scale, values, densityFunction)) {
+        for (int y = origin.getY(); y >= bottom; y -= boundingScale.getY()) {
+            basePos = basePos.atY(y);
+            if (checkPlace(basePos, scale, values, densityFunction, location, boundingSize, grid3D)) {
 
-                if (DensityStructurePiece.checkStructure(basePos.immutable(), context.seed(),
+                if (DensityStructurePiece.checkStructure(basePos, context.seed(),
                         basePool.value())) {
                     hasBase = true;
                     break;
@@ -136,7 +99,11 @@ public record LayeredGridDensityStructure(String name, Holder<StructureTemplateP
         LegacyRandomSource r = new LegacyRandomSource(context.seed());
         LegacyRandomSource r1 = new LegacyRandomSource(pos.atY(0).asLong());
         LegacyRandomSource random = new LegacyRandomSource(r.nextLong() + r1.nextLong());
-        int setY = (random.nextInt((maxY - basePos.getY() - yOffset*scale) / boundingScale.getY())+3) * boundingScale.getY();
+        if (random.nextDouble() > rarity) {
+            return false;
+        }
+
+        int setY = random.nextInt(minY, maxY) * boundingScale.getY();
 
         if (origin.getY() > setY + basePos.getY() || origin.getY() < basePos.getY()) {
             return false;
@@ -145,22 +112,16 @@ public record LayeredGridDensityStructure(String name, Holder<StructureTemplateP
         StructureTemplatePool templatePool = middlePool.value();
         if (basePos.equals(origin)) {
             templatePool = basePool.value();
-        } else if (setY + basePos.getY() == origin.getY() || origin.getY() == maxY - boundingScale.getY() - yOffset*scale) {
+        } else if (setY + basePos.getY() == origin.getY()) {
             templatePool = topPool.value();
         }
 
-
         if (!distanceFromOrigin.equals(BlockPos.ZERO)) {
 
-            return false;
+            return true;
 
 //            return StructurePiece.checkStructure(origin, world.toServerWorld().getSeed(),
 //                    random, templatePool);
-        }
-
-        if (!DensityStructurePiece.checkStructure(basePos.immutable(), context.seed(),
-                templatePool)) {
-            return false;
         }
 
         StructurePoolElement structurePoolElement = DensityStructurePiece.getStructure(pos, context.seed(), templatePool);

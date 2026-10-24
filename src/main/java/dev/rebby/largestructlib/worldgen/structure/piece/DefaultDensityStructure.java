@@ -36,63 +36,32 @@ public record DefaultDensityStructure(String name, Holder<StructureTemplatePool>
                     .apply(instance, DefaultDensityStructure::new));
 
 
-    private boolean checkPlace(BlockPos pos, int scale, Map<String, CheckValue> values, DensityFunction densityFunction) {
-        BlockPos min = pos.subtract(location.multiply(scale));
-        BlockPos max = min.offset(boundingSize.multiply(scale));
 
-        int index = 0;
-        for (int j = 0; j < boundingSize.getY(); j++) {
-            for (int i = 0; i < boundingSize.getX(); i++) {
-                for (int k = 0; k < boundingSize.getZ(); k++) {
-                    CheckValue value = values.get(grid3D.get(index));
-                    if (value != null) {
-                        BlockPos gridLoc = location.multiply(-1).offset(i, j, k).multiply(scale);
-                        BlockPos loc = pos.offset(gridLoc);
-                        boolean result = value.check(densityFunction, loc, min, max, scale);
-                        if (!result && value.doesOverrideIfFalse()) {
-                            return false;
-                        }
-
-                        if (result && value.doesOverrideIfTrue()) {
-                            return true;
-                        }
-
-
-                    }
-
-                    index++;
-                }
-            }
-        }
-        return true;
-    }
 
     @Override
     public boolean place(List<PoolElementStructurePiece> pieces, int scale, BlockPos pos, DensityFunction densityFunction,
                 StructureTemplateManager structureTemplateManager, Structure.GenerationContext context,
                 Map<String, CheckValue> values, PoolAliasLookup aliasLookup,
-                LiquidSettings liquidSettings) {
+                LiquidSettings liquidSettings, int top, int bottom) {
 
-        BlockPos distanceFromOrigin = getBlockPos(scale, pos);
+        BlockPos distanceFromOrigin = getDistanceFromOrigin(scale, pos);
 
+
+
+
+        if (!checkPlace(pos.subtract(distanceFromOrigin), scale, values, densityFunction, location, boundingSize, grid3D)) {
+            return false;
+        }
+
+
+        if (!DensityStructurePiece.checkStructure(pos.subtract(distanceFromOrigin), context.seed(),
+                pool.value())) {
+            return false;
+        }
 
         if (!distanceFromOrigin.equals(BlockPos.ZERO)) {
 
-            return false;
-
-//            return checkPlace(pos.subtract(distanceFromOrigin), scale, values, densityFunction) &&
-//                    StructurePiece.checkStructure(pos.subtract(distanceFromOrigin), world.toServerWorld().getSeed(),
-//                            random, structurePool);
-        }
-
-        if (!checkPlace(pos, scale, values, densityFunction)) {
-            return false;
-        }
-
-
-        if (!DensityStructurePiece.checkStructure(pos, context.seed(),
-                pool.value())) {
-            return false;
+            return true;
         }
 
         StructurePoolElement structurePoolElement = DensityStructurePiece.getStructure(pos, context.seed(), pool.value());
@@ -109,7 +78,7 @@ public record DefaultDensityStructure(String name, Holder<StructureTemplatePool>
         return true;
     }
 
-    private @NotNull BlockPos getBlockPos(int scale, BlockPos pos) {
+    private @NotNull BlockPos getDistanceFromOrigin(int scale, BlockPos pos) {
         if (boundingSize.getX() * boundingSize.getY() * boundingSize.getZ() > grid3D.size() ||
                 yOffset >= size.getY()) {
             throw new IndexOutOfBoundsException("Scaling out of bounds for structure " + getName());
@@ -117,12 +86,12 @@ public record DefaultDensityStructure(String name, Holder<StructureTemplatePool>
 
         BlockPos offsetPos = pos.offset(0, -yOffset * scale, 0);
 
-        BlockPos boundingSize = size.multiply(scale);
+        BlockPos boundingScale = size.multiply(scale);
 
         return new BlockPos(
-                Math.abs(offsetPos.getX()) % boundingSize.getX(),
-                Math.abs(offsetPos.getY()) % boundingSize.getY(),
-                Math.abs(offsetPos.getZ()) % boundingSize.getZ());
+                ((offsetPos.getX() % boundingScale.getX()) + boundingScale.getX()) % boundingScale.getX(),
+                ((offsetPos.getY() % boundingScale.getY()) + boundingScale.getY()) % boundingScale.getY(),
+                ((offsetPos.getZ() % boundingScale.getZ()) + boundingScale.getZ()) % boundingScale.getZ());
     }
 
     @Override

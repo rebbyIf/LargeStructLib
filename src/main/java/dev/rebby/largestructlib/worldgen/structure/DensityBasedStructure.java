@@ -53,7 +53,7 @@ public class DensityBasedStructure extends Structure {
         for (DensityStructurePiece piece : structure.structures) {
             BlockPos scale = piece.getSize().multiply((int) Math.pow(2, structure.fac));
 
-            if (scale.getX() > 16 || scale.getZ() > 16 || scale.getY() > structure.maxY - structure.minY) {
+            if (scale.getY() > structure.maxY - structure.minY) {
                 return DataResult.error(() -> "Piece "+piece.getName()+" was too big");
             }
         }
@@ -144,58 +144,34 @@ public class DensityBasedStructure extends Structure {
             return Optional.empty();
         }
 
-        for (DensityStructurePiece structure : structures) {
 
-            BlockPos size = structure.getSize();
 
-            i = 0;
-            for (int x = 0; x < 16; x += scale) {
-                int j = 0;
-                for (int y = 0; y < maxY - minY; y += scale) {
-                    int k = 0;
-                    for (int z = 0; z < 16; z += scale) {
+        i = 0;
+        for (int x = 0; x < 16; x += scale) {
+            int j = 0;
+            for (int y = 0; y < maxY - minY; y += scale) {
+                int k = 0;
+                for (int z = 0; z < 16; z += scale) {
 
-                        label:
-                        {
-                            if (i + size.getX() > completed.length ||
-                                    j + size.getY() > completed[0].length ||
-                                    k + size.getZ() > completed[0][0].length) {
-                                break label;
-                            }
+                    BlockPos pos = startPos.offset(x, y, z);
 
-                            for (int xp = 0; xp < size.getX(); xp++) {
-                                for (int yp = 0; yp < size.getY(); yp++) {
-                                    for (int zp = 0; zp < size.getZ(); zp++) {
-                                        if (completed[i + xp][j + yp][k + zp]) {
-                                            break label;
-                                        }
-                                    }
-                                }
-                            }
+                    for (DensityStructurePiece structure : structures) {
 
-                            BlockPos pos = startPos.offset(x, y, z);
+                        if (structure.place(pieces, scale, pos, densityFunctionImpl, structureTemplateManager,
+                                context, values, PoolAliasLookup.create(List.of(), pos,
+                                        context.seed()), liquidSettings, maxY, minY)) {
 
-                            if (structure.place(pieces, scale, pos, densityFunctionImpl, structureTemplateManager,
-                                    context, values, PoolAliasLookup.create(List.of(), pos,
-                                            context.seed()), liquidSettings)) {
+                            break;
 
-                                for (int xp = 0; xp < size.getX(); xp++) {
-                                    for (int yp = 0; yp < size.getY(); yp++) {
-                                        for (int zp = 0; zp < size.getZ(); zp++) {
-                                            completed[i + xp][j + yp][k + zp] = true;
-                                        }
-                                    }
-                                }
-
-                            }
                         }
-                        k++;
                     }
-                    j++;
+                    k++;
                 }
-                i++;
-
+                j++;
             }
+            i++;
+
+
         }
 
         if (pieces.isEmpty()) {

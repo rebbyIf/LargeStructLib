@@ -52,10 +52,42 @@ public interface DensityStructurePiece {
         return dataPool.getRandomTemplate(random);
     }
 
+    default boolean checkPlace(BlockPos pos, int scale, Map<String, CheckValue> values, DensityFunction densityFunction
+            , BlockPos location, BlockPos boundingSize, List<String> grid3D) {
+        BlockPos min = pos.subtract(location.multiply(scale));
+        BlockPos max = min.offset(boundingSize.multiply(scale));
+
+        int index = 0;
+        for (int j = 0; j < boundingSize.getY(); j++) {
+            for (int i = 0; i < boundingSize.getX(); i++) {
+                for (int k = 0; k < boundingSize.getZ(); k++) {
+                    CheckValue value = values.get(grid3D.get(index));
+                    if (value != null) {
+                        BlockPos gridLoc = location.multiply(-1).offset(i, j, k).multiply(scale);
+                        BlockPos loc = pos.offset(gridLoc);
+                        boolean result = value.check(densityFunction, loc, min, max, scale);
+                        if (!result && value.doesOverrideIfFalse()) {
+                            return false;
+                        }
+
+                        if (result && value.doesOverrideIfTrue()) {
+                            return true;
+                        }
+
+
+                    }
+
+                    index++;
+                }
+            }
+        }
+        return true;
+    }
+
     boolean place(List<PoolElementStructurePiece> pieces, int scale, BlockPos pos, DensityFunction densityFunction,
                   StructureTemplateManager structureTemplateManager, Structure.GenerationContext context,
                   Map<String, CheckValue> values, PoolAliasLookup aliasLookup,
-                  LiquidSettings liquidSettings);
+                  LiquidSettings liquidSettings, int top, int bottom);
 
     String getName();
 
