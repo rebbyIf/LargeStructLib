@@ -7,6 +7,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.rebby.largestructlib.worldgen.density_function.DensityFunctionWrapper;
 import dev.rebby.largestructlib.worldgen.structure.check_value.CheckValue;
+import dev.rebby.largestructlib.worldgen.structure.check_value.MultiNoiseCheckValue;
 import dev.rebby.largestructlib.worldgen.structure.piece.DensityStructurePiece;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -103,9 +104,18 @@ public class DensityBasedStructure extends Structure {
         List<PoolElementStructurePiece> pieces = Lists.newArrayList();
         ChunkGenerator chunkGenerator = context.chunkGenerator();
 
-        if (densityFunctionImpl == null && chunkGenerator instanceof NoiseBasedChunkGenerator) {
+        if (chunkGenerator instanceof NoiseBasedChunkGenerator noiseChunkGenerator) {
+            if (densityFunctionImpl == null) {
+                densityFunctionImpl = densityFunction.value().mapAll(new DensityFunctionWrapper(context, noiseChunkGenerator.generatorSettings().value()));
 
-            densityFunctionImpl = densityFunction.value().mapAll(new DensityFunctionWrapper(context, ((NoiseBasedChunkGenerator) chunkGenerator).generatorSettings().value()));
+                for (CheckValue value : values.values()) {
+                    if (value instanceof MultiNoiseCheckValue multiValue) {
+                        multiValue.instantiate(context, noiseChunkGenerator.generatorSettings().value());
+                    }
+                }
+            }
+        } else {
+            return Optional.empty();
         }
 
         int scale = (int) Math.pow(2, fac);

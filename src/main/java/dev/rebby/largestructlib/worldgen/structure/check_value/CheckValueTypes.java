@@ -21,4 +21,14 @@ public interface CheckValueTypes {
             TYPES.register("axis_for_value",
                     () -> () -> CheckDefaultValue.CheckAxisForSingleValue.AXIS_SINGLE_VALUE_CODEC);
 
+    DeferredHolder<CheckValueType<?>, CheckValueType<MultiNoiseCheckValue>> MULTI_NOISE =
+            TYPES.register("multi_noise",
+                    () -> () -> MultiNoiseCheckValue.CODEC);
+    DeferredHolder<CheckValueType<?>, CheckValueType<MultiNoiseCheckValue.Axis>> MULTI_NOISE_AXIS =
+            TYPES.register("multi_noise_axis",
+                    () -> () -> MultiNoiseCheckValue.Axis.CODEC);
+    DeferredHolder<CheckValueType<?>, CheckValueType<MultiNoiseCheckValue.Plane>> MULTI_NOISE_PLANE =
+            TYPES.register("multi_noise_plane",
+                    () -> () -> MultiNoiseCheckValue.Plane.CODEC);
+
 }
