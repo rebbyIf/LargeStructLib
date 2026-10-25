@@ -110,47 +110,8 @@ public class DensityBasedStructure extends Structure {
 
         int scale = (int) Math.pow(2, fac);
 
-        boolean [][][] completed = new boolean[16/scale][(maxY-minY)/scale][16/scale];
-
-        boolean cantPlace = true;
-        int i = 0;
         for (int x = 0; x < 16; x += scale) {
-            int j = 0;
             for (int y = 0; y < maxY - minY; y += scale) {
-                int k = 0;
-                for (int z = 0; z < 16; z += scale) {
-                    BlockPos pos = startPos.offset(x,y,z);
-                    boolean biomeTest = context.validBiome().test(
-                            context.chunkGenerator().getBiomeSource().getNoiseBiome(
-                                    QuartPos.fromBlock(pos.getX()),
-                                    QuartPos.fromBlock(pos.getY()),
-                                    QuartPos.fromBlock(pos.getZ()),
-                                    context.randomState().sampler()));
-                    if (biomeTest) {
-                        cantPlace = false;
-                    }
-
-                    completed[i][j][k] = !biomeTest;
-
-                    k++;
-                }
-                j++;
-
-            }
-            i++;
-        }
-
-        if (cantPlace) {
-            return Optional.empty();
-        }
-
-
-
-        i = 0;
-        for (int x = 0; x < 16; x += scale) {
-            int j = 0;
-            for (int y = 0; y < maxY - minY; y += scale) {
-                int k = 0;
                 for (int z = 0; z < 16; z += scale) {
 
                     BlockPos pos = startPos.offset(x, y, z);
@@ -165,11 +126,8 @@ public class DensityBasedStructure extends Structure {
 
                         }
                     }
-                    k++;
                 }
-                j++;
             }
-            i++;
 
 
         }

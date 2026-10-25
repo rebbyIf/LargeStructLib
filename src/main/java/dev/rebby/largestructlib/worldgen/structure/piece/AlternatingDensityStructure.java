@@ -87,7 +87,7 @@ public record AlternatingDensityStructure(String name, Holder<StructureTemplateP
                 ((pos.getZ() % boundingScale.getZ()) + boundingScale.getZ()) % boundingScale.getZ());
 
         LegacyRandomSource r = new LegacyRandomSource(context.seed());
-        LegacyRandomSource r1 = new LegacyRandomSource(pos.atY(0).asLong());
+        LegacyRandomSource r1 = new LegacyRandomSource(pos.subtract(distanceFromOrigin).atY(0).asLong());
         LegacyRandomSource random = new LegacyRandomSource(r.nextLong() + r1.nextLong());
         int offset = random.nextInt(size.getY()) * scale;
 

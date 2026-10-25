@@ -61,7 +61,7 @@ public record LayeredGridDensityStructure(String name, Holder<StructureTemplateP
 
         BlockPos distanceFromOrigin = new BlockPos(
                 ((pos.getX() % boundingScale.getX()) + boundingScale.getX()) % boundingScale.getX(),
-                (((pos.getY() - yOffset*scale) % boundingScale.getY()) + boundingScale.getY()) % boundingScale.getY(),
+                (((pos.getY() + yOffset*scale) % boundingScale.getY()) + boundingScale.getY()) % boundingScale.getY(),
                 ((pos.getZ() % boundingScale.getZ()) + boundingScale.getZ()) % boundingScale.getZ());
 
 
@@ -97,7 +97,7 @@ public record LayeredGridDensityStructure(String name, Holder<StructureTemplateP
         }
 
         LegacyRandomSource r = new LegacyRandomSource(context.seed());
-        LegacyRandomSource r1 = new LegacyRandomSource(pos.atY(0).asLong());
+        LegacyRandomSource r1 = new LegacyRandomSource(basePos.asLong());
         LegacyRandomSource random = new LegacyRandomSource(r.nextLong() + r1.nextLong());
         if (random.nextDouble() > rarity) {
             return false;

@@ -84,7 +84,7 @@ public record DefaultDensityStructure(String name, Holder<StructureTemplatePool>
             throw new IndexOutOfBoundsException("Scaling out of bounds for structure " + getName());
         }
 
-        BlockPos offsetPos = pos.offset(0, -yOffset * scale, 0);
+        BlockPos offsetPos = pos.offset(0, yOffset * scale, 0);
 
         BlockPos boundingScale = size.multiply(scale);
 
