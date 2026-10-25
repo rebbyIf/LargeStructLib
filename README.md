@@ -1,72 +1,9 @@
 Library of Large structures & structure sets, including:
 
-Large Jigsaw Structures
--------
-
-Modified Jigsaw structures that can span a large radius. Formed by pregenerating the structure & placing it per chunk. Relies on a Grid Structure Placement structure set in order to generate. **Any other structure set that doesn't generate per chunk will result in a broken structure**
-
-Mostly follows standard jigsaw structure format. Refer to [the minecraft wiki](https://minecraft.wiki/w/Jigsaw_structure#Config) for examples.
-
-Example definition:
-``` json5
-{
-  // ID for Large Jigsaw Structures
-  "type": "largestructlib:large_jigsaw",
-  // Would recommend setting biomes to
-  // all within a specific dimension.
-  "biomes": "#minecraft:is_overworld",
-  "project_start_to_heightmap": "WORLD_SURFACE_WG",
-  "spawn_overrides": {},
-  "start_height": {
-    "absolute": 0
-  },
-  "start_jigsaw_name": "minecraft:city_anchor",
-  "start_pool": "minecraft:ancient_city/city_center",
-  "step": "surface_structures",
-  "terrain_adaptation": "none",
-  "use_expansion_hack": true,
-  // Max distance from the center expanded up to 4096.
-  "max_distance_from_center": 2048,
-  // Size expanded up to 512.
-  "size": 256,
-  // Unique to Large Jigsaw Structures. Specifies the
-  // padding between structures of the same type. Distance
-  // between each structure is:
-  // max_distance_from_center + paddding
-  //
-  // Range from 1-4096
-  "padding": 4
-  // Chance of a structure spawning within the padding
-  // + distance from center grid.
-  // Range from 0.0 to 1.0.
-  // Optional
-  "frequency": 1.0
-}
-```
-
-Grid Structure Placement
--------
-
-Places structures per chunk. Recommended to use with Large Jigsaw Structures.
-
-Example definition:
-``` json5
-{
-  "placement": {
-    // ID for Grid Structure Sets.
-    // I would not recommend adding any extra features as it may
-    // result in irregular terrain-gen, especially frequency.
-    "type": "largestructlib:grid",
-    "salt": 10387312
-  },
-  "structures": [
-    {
-      "structure": "testing:village",
-      "weight": 1
-    }
-  ]
-}
-```
+- Large Jigsaw Structures
+- Density Based Structures
+- Multi Structures
+- Grid Structure Sets
 
 Dependencies
 =====
