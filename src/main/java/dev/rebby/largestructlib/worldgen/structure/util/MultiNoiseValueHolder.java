@@ -18,6 +18,11 @@ public class MultiNoiseValueHolder {
         if (instance == null) {
             instance = new MultiNoiseValueHolder();
         }
+        for (NoiseValueHolder noise : instance.noises.values()) {
+            if (noise.values.size() > 1000000){
+                noise.values = new HashMap<>();
+            }
+        }
         return instance;
     }
 
@@ -46,7 +51,7 @@ public class MultiNoiseValueHolder {
 
     private static class NoiseValueHolder {
         private final DensityFunction noise;
-        private final Map<BlockPos, Double> values;
+        private Map<BlockPos, Double> values;
 
         private NoiseValueHolder(DensityFunction noise){
             this.noise = noise;
