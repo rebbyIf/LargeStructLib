@@ -7,7 +7,6 @@ import dev.rebby.largestructlib.worldgen.structure.check_value.CheckValue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.levelgen.DensityFunction;
@@ -52,7 +51,7 @@ public interface DensityStructurePiece {
         return dataPool.getRandomTemplate(random);
     }
 
-    default boolean checkPlace(BlockPos pos, int scale, Map<String, CheckValue> values, DensityFunction densityFunction
+    default boolean checkPlace(BlockPos pos, int scale, Map<String, CheckValue> values, Holder<DensityFunction> densityFunction
             , BlockPos location, BlockPos boundingSize, List<String> grid3D) {
         BlockPos min = pos.subtract(location.multiply(scale));
         BlockPos max = min.offset(boundingSize.multiply(scale));
@@ -84,7 +83,7 @@ public interface DensityStructurePiece {
         return true;
     }
 
-    boolean place(List<PoolElementStructurePiece> pieces, int scale, BlockPos pos, DensityFunction densityFunction,
+    boolean place(List<PoolElementStructurePiece> pieces, int scale, BlockPos pos, Holder<DensityFunction> densityFunction,
                   StructureTemplateManager structureTemplateManager, Structure.GenerationContext context,
                   Map<String, CheckValue> values, PoolAliasLookup aliasLookup,
                   LiquidSettings liquidSettings, int top, int bottom);

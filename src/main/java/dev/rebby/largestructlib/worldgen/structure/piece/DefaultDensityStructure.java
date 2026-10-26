@@ -39,10 +39,10 @@ public record DefaultDensityStructure(String name, Holder<StructureTemplatePool>
 
 
     @Override
-    public boolean place(List<PoolElementStructurePiece> pieces, int scale, BlockPos pos, DensityFunction densityFunction,
-                StructureTemplateManager structureTemplateManager, Structure.GenerationContext context,
-                Map<String, CheckValue> values, PoolAliasLookup aliasLookup,
-                LiquidSettings liquidSettings, int top, int bottom) {
+    public boolean place(List<PoolElementStructurePiece> pieces, int scale, BlockPos pos, Holder<DensityFunction> densityFunction,
+                         StructureTemplateManager structureTemplateManager, Structure.GenerationContext context,
+                         Map<String, CheckValue> values, PoolAliasLookup aliasLookup,
+                         LiquidSettings liquidSettings, int top, int bottom) {
 
         BlockPos distanceFromOrigin = getDistanceFromOrigin(scale, pos);
 

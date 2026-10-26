@@ -1,6 +1,5 @@
-package dev.rebby.largestructlib.worldgen.structure;
+package dev.rebby.largestructlib.worldgen.structure.util;
 
-import dev.rebby.largestructlib.worldgen.structure.generator.LargeJigsawPlacement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;

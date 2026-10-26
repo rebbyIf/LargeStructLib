@@ -3,11 +3,10 @@ package dev.rebby.largestructlib.worldgen.structure.check_value;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.rebby.largestructlib.worldgen.density_function.DensityFunctionWrapper;
+import dev.rebby.largestructlib.worldgen.structure.util.MultiNoiseValueHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.levelgen.DensityFunction;
-import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.structure.Structure;
 
@@ -38,8 +37,8 @@ public class MultiNoiseCheckValue implements CheckValue{
     }
 
     @Override
-    public boolean check(DensityFunction check, BlockPos loc, BlockPos minLoc, BlockPos maxLoc, int scale) {
-        double density = check.compute(new DensityFunction.SinglePointContext(loc.getX(), loc.getY(), loc.getZ()));
+    public boolean check(Holder<DensityFunction> check, BlockPos loc, BlockPos minLoc, BlockPos maxLoc, int scale) {
+        double density = MultiNoiseValueHolder.getInstance().getValue(check, loc);
 
         if (density < min || density >= max)
             return false;
@@ -86,7 +85,7 @@ public class MultiNoiseCheckValue implements CheckValue{
         }
 
         @Override
-        public boolean check(DensityFunction check, BlockPos loc, BlockPos minLoc, BlockPos maxLoc, int scale) {
+        public boolean check(Holder<DensityFunction> check, BlockPos loc, BlockPos minLoc, BlockPos maxLoc, int scale) {
             switch (axis) {
                 case "x" -> {
                     for (int j = minLoc.getY(); j < maxLoc.getY(); j += scale) {
@@ -147,7 +146,7 @@ public class MultiNoiseCheckValue implements CheckValue{
         }
 
         @Override
-        public boolean check(DensityFunction check, BlockPos loc, BlockPos minLoc, BlockPos maxLoc, int scale) {
+        public boolean check(Holder<DensityFunction> check, BlockPos loc, BlockPos minLoc, BlockPos maxLoc, int scale) {
             switch (axis) {
                 case "x" -> {
                     for (int i = minLoc.getX(); i < maxLoc.getX(); i += scale) {
@@ -202,11 +201,13 @@ public class MultiNoiseCheckValue implements CheckValue{
         }
 
         private void instantiate(Structure.GenerationContext context, NoiseGeneratorSettings settings) {
-            densityFunctionImpl = densityFunction.value().mapAll(new DensityFunctionWrapper(context, settings));
+            MultiNoiseValueHolder.getInstance().instantiate(densityFunction, context, settings);
+            //densityFunctionImpl = densityFunction.value().mapAll(new DensityFunctionWrapper(context, settings));
         }
 
         private boolean check(BlockPos loc) {
-            double density = densityFunctionImpl.compute(new DensityFunction.SinglePointContext(loc.getX(), loc.getY(), loc.getZ()));
+            double density = MultiNoiseValueHolder.getInstance().getValue(densityFunction, loc);
+            // densityFunctionImpl.compute(new DensityFunction.SinglePointContext(loc.getX(), loc.getY(), loc.getZ()));
 
             return density >= min && density < max;
         }

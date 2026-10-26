@@ -15,7 +15,6 @@ import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.pools.alias.PoolAliasLookup;
 import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,7 +45,7 @@ public record LayeredGridDensityStructure(String name, Holder<StructureTemplateP
 
 
     @Override
-    public boolean place(List<PoolElementStructurePiece> pieces, int scale, BlockPos pos, DensityFunction densityFunction,
+    public boolean place(List<PoolElementStructurePiece> pieces, int scale, BlockPos pos, Holder<DensityFunction> densityFunction,
                          StructureTemplateManager structureTemplateManager, Structure.GenerationContext context,
                          Map<String, CheckValue> values, PoolAliasLookup aliasLookup,
                          LiquidSettings liquidSettings, int top, int bottom) {

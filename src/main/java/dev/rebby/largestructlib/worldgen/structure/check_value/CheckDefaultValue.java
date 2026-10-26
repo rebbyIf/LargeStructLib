@@ -3,7 +3,9 @@ package dev.rebby.largestructlib.worldgen.structure.check_value;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.rebby.largestructlib.worldgen.structure.util.MultiNoiseValueHolder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.world.level.levelgen.DensityFunction;
 
 public record CheckDefaultValue(double min, double max) implements CheckValue {
@@ -15,8 +17,8 @@ public record CheckDefaultValue(double min, double max) implements CheckValue {
                     .apply(instance, CheckDefaultValue::new));
 
     @Override
-    public boolean check(DensityFunction check, BlockPos loc, BlockPos minLoc, BlockPos maxLoc, int scale) {
-        double density = check.compute(new DensityFunction.SinglePointContext(loc.getX(), loc.getY(), loc.getZ()));
+    public boolean check(Holder<DensityFunction> check, BlockPos loc, BlockPos minLoc, BlockPos maxLoc, int scale) {
+        double density = MultiNoiseValueHolder.getInstance().getValue(check, loc);
 
 
         return density >= min && density < max;
@@ -47,11 +49,12 @@ public record CheckDefaultValue(double min, double max) implements CheckValue {
                         .apply(instance, CheckAxisForSingleValue::new));
 
         @Override
-        public boolean check(DensityFunction check, BlockPos loc, BlockPos minLoc, BlockPos maxLoc, int scale) {
+        public boolean check(Holder<DensityFunction> check, BlockPos loc, BlockPos minLoc, BlockPos maxLoc, int scale) {
             switch (axis) {
                 case "x" -> {
                     for (int i = minLoc.getX(); i < maxLoc.getX(); i += scale) {
-                        double density = check.compute(new DensityFunction.SinglePointContext(i, loc.getY(), loc.getZ()));
+                        double density = MultiNoiseValueHolder.getInstance()
+                                .getValue(check, new BlockPos(i, loc.getY(), loc.getZ()));
                         if (density >= min && density < max) {
                             return true;
                         }
@@ -59,7 +62,8 @@ public record CheckDefaultValue(double min, double max) implements CheckValue {
                 }
                 case "y" -> {
                     for (int j = minLoc.getY(); j < maxLoc.getY(); j += scale) {
-                        double density = check.compute(new DensityFunction.SinglePointContext(loc.getX(), j, loc.getZ()));
+                        double density = MultiNoiseValueHolder.getInstance()
+                                .getValue(check, new BlockPos(loc.getX(), j, loc.getZ()));
                         if (density >= min && density < max) {
                             return true;
                         }
@@ -67,7 +71,8 @@ public record CheckDefaultValue(double min, double max) implements CheckValue {
                 }
                 case "z" -> {
                     for (int k = minLoc.getZ(); k < maxLoc.getZ(); k += scale) {
-                        double density = check.compute(new DensityFunction.SinglePointContext(loc.getX(), loc.getY(), k));
+                        double density = MultiNoiseValueHolder.getInstance()
+                                .getValue(check, new BlockPos(loc.getX(), loc.getY(), k));
                         if (density >= min && density < max) {
                             return true;
                         }

@@ -1,4 +1,4 @@
-package dev.rebby.largestructlib.worldgen.structure.generator;
+package dev.rebby.largestructlib.worldgen.structure.util;
 
 import com.google.common.collect.Lists;
 import dev.rebby.largestructlib.LargeStructureLib;

@@ -9,9 +9,9 @@ import dev.rebby.largestructlib.worldgen.density_function.DensityFunctionWrapper
 import dev.rebby.largestructlib.worldgen.structure.check_value.CheckValue;
 import dev.rebby.largestructlib.worldgen.structure.check_value.MultiNoiseCheckValue;
 import dev.rebby.largestructlib.worldgen.structure.piece.DensityStructurePiece;
+import dev.rebby.largestructlib.worldgen.structure.util.MultiNoiseValueHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.QuartPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.DensityFunction;
@@ -66,7 +66,7 @@ public class DensityBasedStructure extends Structure {
     private final int maxY;
     private final int fac;
     private final Holder<DensityFunction> densityFunction;
-    private DensityFunction densityFunctionImpl = null;
+    private boolean noDensityFunctionImpl = true;
     private final Map<String, CheckValue> values;
     private final List<DensityStructurePiece> structures;
     private final LiquidSettings liquidSettings;
@@ -105,9 +105,8 @@ public class DensityBasedStructure extends Structure {
         ChunkGenerator chunkGenerator = context.chunkGenerator();
 
         if (chunkGenerator instanceof NoiseBasedChunkGenerator noiseChunkGenerator) {
-            if (densityFunctionImpl == null) {
-                densityFunctionImpl = densityFunction.value().mapAll(new DensityFunctionWrapper(context, noiseChunkGenerator.generatorSettings().value()));
-
+            if (noDensityFunctionImpl) {
+                MultiNoiseValueHolder.getInstance().instantiate(densityFunction, context, noiseChunkGenerator.generatorSettings().value());
                 for (CheckValue value : values.values()) {
                     if (value instanceof MultiNoiseCheckValue multiValue) {
                         multiValue.instantiate(context, noiseChunkGenerator.generatorSettings().value());
@@ -128,7 +127,7 @@ public class DensityBasedStructure extends Structure {
 
                     for (DensityStructurePiece structure : structures) {
 
-                        if (structure.place(pieces, scale, pos, densityFunctionImpl, structureTemplateManager,
+                        if (structure.place(pieces, scale, pos, densityFunction, structureTemplateManager,
                                 context, values, PoolAliasLookup.create(List.of(), pos,
                                         context.seed()), liquidSettings, maxY, minY)) {
 
