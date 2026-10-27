@@ -10,6 +10,8 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
+import net.neoforged.neoforge.event.server.ServerLifecycleEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,7 +58,7 @@ public class MultiNoiseValueHolder {
     @EventBusSubscriber(modid = LargeStructureLib.MODID)
     public static class EventHandler{
         @SubscribeEvent
-        private static void handleWorldLoad(LevelEvent.Load event){
+        private static void handleWorldLoad(ServerAboutToStartEvent event){
             instance = new MultiNoiseValueHolder();
             LargeStructureLib.LOGGER.info("Reloading Processor");
 
