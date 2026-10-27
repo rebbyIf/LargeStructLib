@@ -1,11 +1,15 @@
 package dev.rebby.largestructlib.worldgen.structure.util;
 
+import dev.rebby.largestructlib.LargeStructureLib;
 import dev.rebby.largestructlib.worldgen.density_function.DensityFunctionWrapper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.structure.Structure;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.level.LevelEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,6 +51,16 @@ public class MultiNoiseValueHolder {
             return 0;
         }
         return noise.getValue(pos);
+    }
+
+    @EventBusSubscriber(modid = LargeStructureLib.MODID)
+    public static class EventHandler{
+        @SubscribeEvent
+        private static void handleWorldLoad(LevelEvent.Load event){
+            instance = new MultiNoiseValueHolder();
+            LargeStructureLib.LOGGER.info("Reloading Processor");
+
+        }
     }
 
     private static class NoiseValueHolder {
