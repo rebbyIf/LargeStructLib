@@ -16,6 +16,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
@@ -103,18 +104,19 @@ public class DensityBasedStructure extends Structure {
 
         List<PoolElementStructurePiece> pieces = Lists.newArrayList();
         ChunkGenerator chunkGenerator = context.chunkGenerator();
+        NoiseGeneratorSettings settings = NoiseGeneratorSettings.dummy();
 
         if (chunkGenerator instanceof NoiseBasedChunkGenerator noiseChunkGenerator) {
-            if (noDensityFunctionImpl) {
-                MultiNoiseValueHolder.getInstance().instantiate(densityFunction, context, noiseChunkGenerator.generatorSettings().value());
-                for (CheckValue value : values.values()) {
-                    if (value instanceof MultiNoiseCheckValue multiValue) {
-                        multiValue.instantiate(context, noiseChunkGenerator.generatorSettings().value());
-                    }
+            settings = noiseChunkGenerator.generatorSettings().value();
+        }
+
+        if (noDensityFunctionImpl) {
+            MultiNoiseValueHolder.getInstance().instantiate(densityFunction, context, settings);
+            for (CheckValue value : values.values()) {
+                if (value instanceof MultiNoiseCheckValue multiValue) {
+                    multiValue.instantiate(context, settings);
                 }
             }
-        } else {
-            return Optional.empty();
         }
 
         int scale = (int) Math.pow(2, fac);

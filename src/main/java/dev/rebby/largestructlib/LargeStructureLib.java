@@ -1,5 +1,6 @@
 package dev.rebby.largestructlib;
 
+import dev.rebby.largestructlib.worldgen.feature.Features;
 import dev.rebby.largestructlib.worldgen.structure.ModStructureTypes;
 import dev.rebby.largestructlib.worldgen.structure.check_value.CheckValueType;
 import dev.rebby.largestructlib.worldgen.structure.check_value.CheckValueTypes;
@@ -47,6 +48,8 @@ public class LargeStructureLib {
     public LargeStructureLib(IEventBus modEventBus, ModContainer modContainer) {
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
+
+        Features.FEATURES.register(modEventBus);
 
         ModStructureTypes.TYPES.register(modEventBus);
         ModStructureTypes.Placement.TYPES.register(modEventBus);
