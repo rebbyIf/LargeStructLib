@@ -40,15 +40,13 @@ public class DensitySampler extends Feature<DensitySamplerConfiguration> {
             noiseGeneratorSettings = noisebasedchunkgenerator.generatorSettings().value();
         }
 
-        if (function == null) {
-            RandomState randomState = RandomState.create(noiseGeneratorSettings, registryaccess.lookupOrThrow(Registries.NOISE), context.level().getSeed());
-            function = context.config().functionHolder().value().mapAll(new DensityFunctionWrapper(
-                    context.level().getSeed(),
-                    noiseGeneratorSettings.useLegacyRandomSource(),
-                    randomState,
-                    ((RandomStateAccessor)(Object)randomState).getRandom()
-            ));
-        }
+        RandomState randomState = RandomState.create(noiseGeneratorSettings, registryaccess.lookupOrThrow(Registries.NOISE), context.level().getSeed());
+        function = context.config().functionHolder().value().mapAll(new DensityFunctionWrapper(
+                context.level().getSeed(),
+                noiseGeneratorSettings.useLegacyRandomSource(),
+                randomState,
+                ((RandomStateAccessor)(Object)randomState).getRandom()
+        ));
 
         BlockPos min = new BlockPos((context.origin().getX() >> 4) << 4,
                 generator.getMinY(),
