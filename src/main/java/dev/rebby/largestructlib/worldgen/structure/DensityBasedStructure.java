@@ -122,10 +122,10 @@ public class DensityBasedStructure extends Structure {
         int scale = (int) Math.pow(2, fac);
 
         for (int x = 0; x < 16; x += scale) {
-            for (int y = 0; y < maxY - minY; y += scale) {
+            for (int y = minY; y < maxY; y += scale) {
                 for (int z = 0; z < 16; z += scale) {
 
-                    BlockPos pos = startPos.offset(x, y, z);
+                    BlockPos pos = startPos.offset(x, 0, z).atY(y);
 
                     for (DensityStructurePiece structure : structures) {
 

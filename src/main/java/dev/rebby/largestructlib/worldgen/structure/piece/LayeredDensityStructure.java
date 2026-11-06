@@ -96,8 +96,8 @@ public record LayeredDensityStructure(String name, Holder<StructureTemplatePool>
 
         int setY = random.nextInt(minY, maxY) * boundingScale.getY();
 
-        if (origin.getY() > setY + basePos.getY() || origin.getY() < basePos.getY()) {
-            return false;
+        if (origin.getY() > setY + basePos.getY()) {
+            return true;
         }
 
         StructureTemplatePool templatePool = middlePool.value();
