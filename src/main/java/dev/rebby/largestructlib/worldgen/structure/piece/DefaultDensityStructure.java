@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.pools.EmptyPoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.pools.alias.PoolAliasLookup;
@@ -53,18 +54,17 @@ public record DefaultDensityStructure(String name, Holder<StructureTemplatePool>
             return false;
         }
 
-
-        if (!DensityStructurePiece.checkStructure(pos.subtract(distanceFromOrigin), context.seed(),
-                pool.value())) {
-            return false;
-        }
-
         if (!distanceFromOrigin.equals(BlockPos.ZERO)) {
 
             return true;
         }
 
         StructurePoolElement structurePoolElement = DensityStructurePiece.getStructure(pos, context.seed(), pool.value());
+
+
+        if (structurePoolElement instanceof EmptyPoolElement) {
+            return true;
+        }
 
         pieces.add(new PoolElementStructurePiece(
                 context.structureTemplateManager(),

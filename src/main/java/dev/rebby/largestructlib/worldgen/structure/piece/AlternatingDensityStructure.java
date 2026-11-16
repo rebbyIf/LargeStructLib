@@ -11,6 +11,7 @@ import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.pools.EmptyPoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.pools.alias.PoolAliasLookup;
@@ -50,17 +51,16 @@ public record AlternatingDensityStructure(String name, Holder<StructureTemplateP
             return false;
         }
 
-        if (!DensityStructurePiece.checkStructure(posOrigin, context.seed(),
-                pool.value())) {
-            return false;
-        }
-
         if (!distanceFromOrigin.equals(BlockPos.ZERO)) {
 
             return true;
         }
 
         StructurePoolElement structurePoolElement = DensityStructurePiece.getStructure(pos, context.seed(), pool.value());
+
+        if (structurePoolElement instanceof EmptyPoolElement) {
+            return true;
+        }
 
         pieces.add(new PoolElementStructurePiece(
                 structureTemplateManager,

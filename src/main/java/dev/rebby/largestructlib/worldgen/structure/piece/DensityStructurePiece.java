@@ -31,17 +31,6 @@ public interface DensityStructurePiece {
             DensityStructurePiece::getType, StructurePieceType::codec);
     Codec<Holder<DensityStructurePiece>> CODEC = RegistryFileCodec.create(REGISTRY_KEY, DIRECT_CODEC);
 
-    static boolean checkStructure(BlockPos pos, long seed, StructureTemplatePool dataPool) {
-        LegacyRandomSource r = new LegacyRandomSource(seed);
-        LegacyRandomSource r1 = new LegacyRandomSource(pos.asLong());
-
-        LegacyRandomSource random = new LegacyRandomSource(r.nextLong() + r1.nextLong());
-
-
-
-        return dataPool.getRandomTemplate(random) != EmptyPoolElement.INSTANCE;
-    }
-
     static StructurePoolElement getStructure(BlockPos pos, long seed, StructureTemplatePool dataPool) {
         LegacyRandomSource r = new LegacyRandomSource(seed);
         LegacyRandomSource r1 = new LegacyRandomSource(pos.asLong());

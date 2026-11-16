@@ -11,6 +11,7 @@ import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.pools.EmptyPoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.pools.alias.PoolAliasLookup;
@@ -75,11 +76,8 @@ public record LayeredDensityStructure(String name, Holder<StructureTemplatePool>
             basePos = basePos.atY(y);
             if (checkPlace(basePos, scale, values, densityFunction, location, boundingSize, grid3D)) {
 
-                if (DensityStructurePiece.checkStructure(basePos, context.seed(),
-                        basePool.value())) {
-                    hasBase = true;
-                    break;
-                }
+                hasBase = true;
+                break;
             }
         }
 
@@ -116,6 +114,10 @@ public record LayeredDensityStructure(String name, Holder<StructureTemplatePool>
         }
 
         StructurePoolElement structurePoolElement = DensityStructurePiece.getStructure(pos, context.seed(), templatePool);
+
+        if (structurePoolElement instanceof EmptyPoolElement) {
+            return true;
+        }
 
         pieces.add(new PoolElementStructurePiece(
                 context.structureTemplateManager(),
