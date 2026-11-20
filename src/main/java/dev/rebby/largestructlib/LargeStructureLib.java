@@ -1,5 +1,6 @@
 package dev.rebby.largestructlib;
 
+import dev.rebby.largestructlib.worldgen.density_function.ModDensityFunctions;
 import dev.rebby.largestructlib.worldgen.feature.Features;
 import dev.rebby.largestructlib.worldgen.structure.ModStructureTypes;
 import dev.rebby.largestructlib.worldgen.structure.check_value.CheckValueType;
@@ -48,6 +49,8 @@ public class LargeStructureLib {
     public LargeStructureLib(IEventBus modEventBus, ModContainer modContainer) {
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
+
+        ModDensityFunctions.FUNCTION_TYPES.register(modEventBus);
 
         Features.FEATURES.register(modEventBus);
 
