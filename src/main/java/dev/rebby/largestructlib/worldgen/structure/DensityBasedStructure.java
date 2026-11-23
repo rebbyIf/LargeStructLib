@@ -12,6 +12,7 @@ import dev.rebby.largestructlib.worldgen.structure.piece.DensityStructurePiece;
 import dev.rebby.largestructlib.worldgen.structure.util.MultiNoiseValueHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.QuartPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.DensityFunction;
@@ -85,7 +86,10 @@ public class DensityBasedStructure extends Structure {
         this.structures = structures;
         this.liquidSettings = liquidSettings;
     }
-
+    @Override
+    public @NotNull Optional<GenerationStub> findValidGenerationPoint(@NotNull GenerationContext context) {
+        return this.findGenerationPoint(context);
+    }
     @Override
     public @NotNull Optional<Structure.GenerationStub> findGenerationPoint(Structure.@NotNull GenerationContext context) {
         return getStructurePosition(context);
@@ -97,10 +101,9 @@ public class DensityBasedStructure extends Structure {
         return generate(context, context.structureTemplateManager(), pos);
     }
 
+
+
     private Optional<Structure.GenerationStub> generate(Structure.GenerationContext context, StructureTemplateManager structureTemplateManager, BlockPos startPos) {
-
-
-
 
         List<PoolElementStructurePiece> pieces = Lists.newArrayList();
         ChunkGenerator chunkGenerator = context.chunkGenerator();
@@ -124,8 +127,17 @@ public class DensityBasedStructure extends Structure {
         for (int x = 0; x < 16; x += scale) {
             for (int y = minY; y < maxY; y += scale) {
                 for (int z = 0; z < 16; z += scale) {
-
                     BlockPos pos = startPos.offset(x, 0, z).atY(y);
+
+                    if (!context.validBiome().test(context.chunkGenerator().getBiomeSource().getNoiseBiome(
+                            QuartPos.fromBlock(pos.getX()),
+                            QuartPos.fromBlock(pos.getY()),
+                            QuartPos.fromBlock(pos.getZ()),
+                            context.randomState().sampler()))){
+                        continue;
+                    }
+
+
 
                     for (DensityStructurePiece structure : structures) {
 

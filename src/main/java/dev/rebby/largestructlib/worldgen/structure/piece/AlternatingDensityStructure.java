@@ -24,7 +24,8 @@ import java.util.Map;
 
 public record AlternatingDensityStructure(String name, Holder<StructureTemplatePool> pool,
                                           BlockPos boundingSize,
-                                          BlockPos size, BlockPos location, List<String> grid3D) implements DensityStructurePiece {
+                                          BlockPos size, BlockPos location, List<String> grid3D,
+                                            double rarity) implements DensityStructurePiece {
 
     public static final MapCodec<AlternatingDensityStructure> ALTERNATING_STRUCTURE_CODEC = RecordCodecBuilder.mapCodec(
             instance -> instance.group(
@@ -33,7 +34,8 @@ public record AlternatingDensityStructure(String name, Holder<StructureTemplateP
                             BlockPos.CODEC.fieldOf("bounding_size").forGetter(AlternatingDensityStructure::boundingSize),
                             BlockPos.CODEC.optionalFieldOf("size", new BlockPos(1, 1, 1)).forGetter(AlternatingDensityStructure::size),
                             BlockPos.CODEC.fieldOf("location").forGetter(AlternatingDensityStructure::location),
-                            Codec.STRING.listOf().fieldOf("grid").forGetter(AlternatingDensityStructure::grid3D))
+                            Codec.STRING.listOf().fieldOf("grid").forGetter(AlternatingDensityStructure::grid3D),
+                            Codec.doubleRange(0.0,1.0).optionalFieldOf("rarity", 1.0).forGetter(AlternatingDensityStructure::rarity))
                     .apply(instance, AlternatingDensityStructure::new));
 
     @Override
@@ -48,6 +50,13 @@ public record AlternatingDensityStructure(String name, Holder<StructureTemplateP
         BlockPos posOrigin = pos.subtract(distanceFromOrigin);
 
         if (!checkPlace(posOrigin, scale, values, densityFunction, location, boundingSize, grid3D)) {
+            return false;
+        }
+
+        LegacyRandomSource r = new LegacyRandomSource(context.seed());
+        LegacyRandomSource r1 = new LegacyRandomSource(posOrigin.asLong());
+        LegacyRandomSource random = new LegacyRandomSource(r.nextLong() + r1.nextLong());
+        if (random.nextDouble() > rarity) {
             return false;
         }
 

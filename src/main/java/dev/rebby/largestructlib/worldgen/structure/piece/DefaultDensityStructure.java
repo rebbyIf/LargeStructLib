@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.DensityFunction;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.pools.EmptyPoolElement;
@@ -23,7 +24,8 @@ import java.util.Map;
 
 public record DefaultDensityStructure(String name, Holder<StructureTemplatePool> pool,
                                       BlockPos boundingSize,
-                                      BlockPos size, BlockPos location, int yOffset, List<String> grid3D) implements DensityStructurePiece {
+                                      BlockPos size, BlockPos location, int yOffset, List<String> grid3D,
+                                        double rarity) implements DensityStructurePiece {
 
     public static final MapCodec<DefaultDensityStructure> DEFAULT_STRUCTURE_CODEC = RecordCodecBuilder.mapCodec(
             instance -> instance.group(
@@ -33,7 +35,8 @@ public record DefaultDensityStructure(String name, Holder<StructureTemplatePool>
                             BlockPos.CODEC.optionalFieldOf("size", new BlockPos(1, 1, 1)).forGetter(structure -> structure.size),
                             BlockPos.CODEC.fieldOf("location").forGetter(structure -> structure.location),
                             Codec.INT.optionalFieldOf("y_offset", 0).forGetter(DefaultDensityStructure::yOffset),
-                            Codec.STRING.listOf().fieldOf("grid").forGetter(structure -> structure.grid3D))
+                            Codec.STRING.listOf().fieldOf("grid").forGetter(structure -> structure.grid3D),
+                            Codec.doubleRange(0.0,1.0).optionalFieldOf("rarity", 1.0).forGetter(structure -> structure.rarity))
                     .apply(instance, DefaultDensityStructure::new));
 
 
@@ -51,6 +54,13 @@ public record DefaultDensityStructure(String name, Holder<StructureTemplatePool>
 
 
         if (!checkPlace(pos.subtract(distanceFromOrigin), scale, values, densityFunction, location, boundingSize, grid3D)) {
+            return false;
+        }
+
+        LegacyRandomSource r = new LegacyRandomSource(context.seed());
+        LegacyRandomSource r1 = new LegacyRandomSource(pos.subtract(distanceFromOrigin).asLong());
+        LegacyRandomSource random = new LegacyRandomSource(r.nextLong() + r1.nextLong());
+        if (random.nextDouble() > rarity) {
             return false;
         }
 
