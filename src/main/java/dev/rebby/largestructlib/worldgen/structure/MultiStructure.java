@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructureType;
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 public class MultiStructure extends Structure {
     public static final MapCodec<MultiStructure> CODEC;
@@ -30,7 +32,20 @@ public class MultiStructure extends Structure {
 
         List<StructurePiece> pieces = new ArrayList<>();
         for (Holder<Structure> holder : structures) {
-            Optional<GenerationStub> optional = holder.value().findValidGenerationPoint(generationContext);
+            Predicate<Holder<Biome>> biomeCheck =  holder.value().biomes()::contains;
+            GenerationContext separateContext = new GenerationContext(
+                    generationContext.registryAccess(),
+                    generationContext.chunkGenerator(),
+                    generationContext.biomeSource(),
+                    generationContext.randomState(),
+                    generationContext.structureTemplateManager(),
+                    generationContext.random(),
+                    generationContext.seed(),
+                    generationContext.chunkPos(),
+                    generationContext.heightAccessor(),
+                    biomeCheck
+            );
+            Optional<GenerationStub> optional = holder.value().findValidGenerationPoint(separateContext);
             if (optional.isEmpty())
                 continue;
             pieces.addAll(optional.get().getPiecesBuilder().build().pieces());

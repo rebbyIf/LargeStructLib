@@ -87,10 +87,6 @@ public class DensityBasedStructure extends Structure {
         this.liquidSettings = liquidSettings;
     }
     @Override
-    public @NotNull Optional<GenerationStub> findValidGenerationPoint(@NotNull GenerationContext context) {
-        return this.findGenerationPoint(context);
-    }
-    @Override
     public @NotNull Optional<Structure.GenerationStub> findGenerationPoint(Structure.@NotNull GenerationContext context) {
         return getStructurePosition(context);
     }
@@ -128,14 +124,6 @@ public class DensityBasedStructure extends Structure {
             for (int y = minY; y < maxY; y += scale) {
                 for (int z = 0; z < 16; z += scale) {
                     BlockPos pos = startPos.offset(x, 0, z).atY(y);
-
-                    if (!context.validBiome().test(context.chunkGenerator().getBiomeSource().getNoiseBiome(
-                            QuartPos.fromBlock(pos.getX()),
-                            QuartPos.fromBlock(pos.getY()),
-                            QuartPos.fromBlock(pos.getZ()),
-                            context.randomState().sampler()))){
-                        continue;
-                    }
 
 
 
