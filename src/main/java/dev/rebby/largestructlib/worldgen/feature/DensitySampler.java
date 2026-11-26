@@ -23,30 +23,34 @@ import org.jetbrains.annotations.NotNull;
 public class DensitySampler extends Feature<DensitySamplerConfiguration> {
 
     public DensityFunction function;
+    public WorldGenLevel level;
 
     public DensitySampler(Codec<DensitySamplerConfiguration> codec) {
         super(codec);
         function = null;
+        level = null;
     }
 
     @Override
     public boolean place(@NotNull FeaturePlaceContext<DensitySamplerConfiguration> context) {
         ChunkGenerator generator = context.chunkGenerator();
-        WorldGenLevel level = context.level();
-        RegistryAccess registryaccess = level.registryAccess();
-        NoiseGeneratorSettings noiseGeneratorSettings = NoiseGeneratorSettings.dummy();
+        if (level != context.level()) {
+            level = context.level();
+            RegistryAccess registryaccess = level.registryAccess();
+            NoiseGeneratorSettings noiseGeneratorSettings = NoiseGeneratorSettings.dummy();
 
-        if (generator instanceof NoiseBasedChunkGenerator noisebasedchunkgenerator){
-            noiseGeneratorSettings = noisebasedchunkgenerator.generatorSettings().value();
+            if (generator instanceof NoiseBasedChunkGenerator noisebasedchunkgenerator) {
+                noiseGeneratorSettings = noisebasedchunkgenerator.generatorSettings().value();
+            }
+
+            RandomState randomState = RandomState.create(noiseGeneratorSettings, registryaccess.lookupOrThrow(Registries.NOISE), context.level().getSeed());
+            function = context.config().functionHolder().value().mapAll(new DensityFunctionWrapper(
+                    context.level().getSeed(),
+                    noiseGeneratorSettings.useLegacyRandomSource(),
+                    randomState,
+                    ((RandomStateAccessor) (Object) randomState).getRandom()
+            ));
         }
-
-        RandomState randomState = RandomState.create(noiseGeneratorSettings, registryaccess.lookupOrThrow(Registries.NOISE), context.level().getSeed());
-        function = context.config().functionHolder().value().mapAll(new DensityFunctionWrapper(
-                context.level().getSeed(),
-                noiseGeneratorSettings.useLegacyRandomSource(),
-                randomState,
-                ((RandomStateAccessor)(Object)randomState).getRandom()
-        ));
 
         BlockPos min = new BlockPos((context.origin().getX() >> 4) << 4,
                 generator.getMinY(),
